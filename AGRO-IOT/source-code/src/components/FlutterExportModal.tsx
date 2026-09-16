@@ -583,18 +583,6 @@ flutter build apk --release
 Output APK: build/app/outputs/flutter-apk/app-release.apk
 `);
 
-      // Include pre-compiled app-release.apk if accessible
-      try {
-        const apkRes = await fetch('./app-release.apk');
-        if (apkRes.ok) {
-          const apkBlob = await apkRes.blob();
-          zip.file('app-release.apk', apkBlob);
-          rootFolder.file('app-release.apk', apkBlob);
-        }
-      } catch (e) {
-        console.warn('Could not bundle pre-compiled APK into ZIP:', e);
-      }
-
       const blob = await zip.generateAsync({ type: 'blob' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -646,24 +634,14 @@ Output APK: build/app/outputs/flutter-apk/app-release.apk
               flutter build apk --release
             </code>
           </div>
-          <div className="flex items-center gap-2">
-            <a
-              href="./app-release.apk"
-              download="app-release.apk"
-              className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors text-xs"
-            >
-              <Smartphone className="w-4 h-4 text-emerald-300" />
-              <span>Download app-release.apk</span>
-            </a>
-            <button
-              onClick={downloadZip}
-              disabled={isZipping}
-              className="px-3.5 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors text-xs"
-            >
-              <Download className="w-4 h-4 text-emerald-400" />
-              <span>{isZipping ? 'Packaging ZIP...' : 'Download Full Codebase (.ZIP)'}</span>
-            </button>
-          </div>
+          <button
+            onClick={downloadZip}
+            disabled={isZipping}
+            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors text-xs"
+          >
+            <Download className="w-4 h-4" />
+            <span>{isZipping ? 'Packaging ZIP...' : 'Download Full Flutter Project (.ZIP)'}</span>
+          </button>
         </div>
 
         {/* Body: File Explorer + Code Viewer */}

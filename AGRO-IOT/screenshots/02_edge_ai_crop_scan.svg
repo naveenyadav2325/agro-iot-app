@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" width="800" height="560">
+        <defs>
+            <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#f1f5f9" />
+            </linearGradient>
+        </defs>
+        <rect width="800" height="560" rx="24" fill="url(#bg)" stroke="#cbd5e1" stroke-width="1.5" />
+        
+        <!-- Header Bar -->
+        <rect x="0" y="0" width="800" height="88" rx="24" fill="#064e3b" />
+        <rect x="0" y="40" width="800" height="48" fill="#064e3b" />
+        <circle cx="44" cy="44" r="18" fill="#10b981" />
+        <path d="M44 32 C38 38, 38 46, 44 52 C50 46, 50 38, 44 32 Z" fill="#ffffff" />
+        <text x="76" y="40" font-family="system-ui, sans-serif" font-size="20" font-weight="800" fill="#ffffff">AGRO-IOT</text>
+        <text x="76" y="60" font-family="system-ui, sans-serif" font-size="13" font-weight="500" fill="#a7f3d0">Smart Farming Assistant • Android Release</text>
+        
+        <!-- Screen Title -->
+        <text x="50" y="120" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#0f172a">Offline Edge AI Foliage Diagnosis</text>
+        <text x="50" y="138" font-family="system-ui, sans-serif" font-size="13" font-weight="500" fill="#64748b">On-Device MobileNetV3 INT8 Local Inference</text>
+        
+        <!-- Cards -->
+        
+        <g transform="translate(50, 150)">
+            <rect width="330" height="135" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
+            <circle cx="28" cy="36" r="10" fill="#059669" fill-opacity="0.15" />
+            <circle cx="28" cy="36" r="4" fill="#059669" />
+            <text x="50" y="41" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#475569">Specimen</text>
+            <text x="28" y="85" font-family="system-ui, sans-serif" font-size="28" font-weight="800" fill="#0f172a">Tomato Leaf</text>
+            <text x="28" y="112" font-family="system-ui, sans-serif" font-size="13" font-weight="500" fill="#64748b">Solanum lycopersicum</text>
+        </g>
+        
+        <g transform="translate(410, 150)">
+            <rect width="330" height="135" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
+            <circle cx="28" cy="36" r="10" fill="#dc2626" fill-opacity="0.15" />
+            <circle cx="28" cy="36" r="4" fill="#dc2626" />
+            <text x="50" y="41" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#475569">Condition</text>
+            <text x="28" y="85" font-family="system-ui, sans-serif" font-size="28" font-weight="800" fill="#0f172a">Early Blight</text>
+            <text x="28" y="112" font-family="system-ui, sans-serif" font-size="13" font-weight="500" fill="#64748b">Alternaria solani Pathogen</text>
+        </g>
+        
+        <g transform="translate(50, 310)">
+            <rect width="330" height="135" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
+            <circle cx="28" cy="36" r="10" fill="#d97706" fill-opacity="0.15" />
+            <circle cx="28" cy="36" r="4" fill="#d97706" />
+            <text x="50" y="41" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#475569">Confidence</text>
+            <text x="28" y="85" font-family="system-ui, sans-serif" font-size="28" font-weight="800" fill="#0f172a">93.4 %</text>
+            <text x="28" y="112" font-family="system-ui, sans-serif" font-size="13" font-weight="500" fill="#64748b">Inference Latency: 54 ms</text>
+        </g>
+        
+        <g transform="translate(410, 310)">
+            <rect width="330" height="135" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
+            <circle cx="28" cy="36" r="10" fill="#2563eb" fill-opacity="0.15" />
+            <circle cx="28" cy="36" r="4" fill="#2563eb" />
+            <text x="50" y="41" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#475569">Execution</text>
+            <text x="28" y="85" font-family="system-ui, sans-serif" font-size="28" font-weight="800" fill="#0f172a">100% Offline</text>
+            <text x="28" y="112" font-family="system-ui, sans-serif" font-size="13" font-weight="500" fill="#64748b">NPU/CPU Local Execution</text>
+        </g>
+        
+        
+        <!-- Footer / Insight Banner -->
+        <rect x="50" y="475" width="700" height="55" rx="12" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1" />
+        <text x="70" y="508" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#065f46">Agronomic Remedy: Prune lower infected foliage • Bio-spray: Trichoderma viride 3g/L</text>
+    </svg>
