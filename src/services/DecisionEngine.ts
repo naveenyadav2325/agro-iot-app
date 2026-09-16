@@ -5,10 +5,71 @@ import {
   CropHealthOverview, 
   DemoScenario, 
   AlertItem, 
-  RiskMetric 
+  RiskMetric,
+  CropScanResult,
+  CropConditionType 
 } from '../types';
 
 export class DecisionEngine {
+  /**
+   * Combines Edge AI local inference diagnosis with real-time sensor telemetry
+   * to produce a high-value, sensor-fused agronomic recommendation.
+   */
+  public static generateCombinedRecommendation(
+    aiDiagnosis: {
+      conditionCategory: CropConditionType;
+      diseaseDetected?: string;
+      pestDetected?: string;
+      nutrientDeficiencyDetected?: string;
+      confidencePercent: number;
+    },
+    reading: SensorReading
+  ): string {
+    const { conditionCategory, diseaseDetected, pestDetected, nutrientDeficiencyDetected, confidencePercent } = aiDiagnosis;
+    const { soilMoisture, temperature, humidity, rainProbability } = reading;
+
+    if (conditionCategory === 'disease') {
+      const diseaseName = diseaseDetected || 'Fungal Pathogen';
+      if (humidity > 70 || rainProbability > 50) {
+        return `⚠️ CRITICAL FUNGAL VECTOR: Edge AI identified ${diseaseName} (${confidencePercent.toFixed(1)}% local confidence) while ambient humidity is high (${humidity.toFixed(0)}%). Humid microclimates accelerate spore germination within 4-6 hours. Withhold overhead sprinkler irrigation immediately to minimize leaf wetness duration; switch strictly to sub-surface drip and apply preventative bio-fungicide.`;
+      }
+      if (soilMoisture > 78) {
+        return `⚠️ DISEASE + ROOT SATURATION: Elevated soil moisture (${soilMoisture.toFixed(0)}%) combined with ${diseaseName} creates anaerobic conditions favoring collar and root rot. Suspend irrigation for 48 hours and inspect furrow drainage.`;
+      }
+      return `🌿 DISEASE MANAGEMENT: ${diseaseName} detected with ${confidencePercent.toFixed(1)}% edge confidence. Soil moisture (${soilMoisture.toFixed(0)}%) is within safe thresholds. Proceed with targeted bio-fungicide spray while avoiding wetting upper canopy foliage.`;
+    }
+
+    if (conditionCategory === 'nutrient_deficiency') {
+      const defName = nutrientDeficiencyDetected || 'Nutrient Chlorosis';
+      if (soilMoisture < 35) {
+        return `⚠️ MOISTURE-INDUCED NUTRIENT BLOCK: Edge AI identified ${defName}, but soil moisture is depleted (${soilMoisture.toFixed(0)}%). Low moisture halts root transpiration and osmotic ion uptake. DO NOT apply dry granular nitrogen/fertilizer directly (risk of root salt burn). First run a 30-minute drip irrigation cycle, then apply water-soluble foliar chelated nutrients.`;
+      }
+      if (soilMoisture > 80) {
+        return `⚠️ WATERLOGGING HYPOXIA: Foliar ${defName} detected alongside saturated soil (${soilMoisture.toFixed(0)}%). Saturated roots lack oxygen for active ion transport. Clear field furrows immediately to aerate root zone before administering foliar supplements.`;
+      }
+      return `🌱 BALANCED NUTRIENT UPTAKE: Soil moisture is at prime assimilation level (${soilMoisture.toFixed(0)}%). Apply recommended organic bio-fertilizer or foliar micronutrient spray to reverse ${defName}.`;
+    }
+
+    if (conditionCategory === 'pest') {
+      const pestName = pestDetected || 'Insect Infestation';
+      if (temperature > 34) {
+        return `⚠️ THERMAL PEST MULTIPLICATION: Edge AI detected ${pestName} under elevated temperature (${temperature.toFixed(1)}°C). High temperatures shorten nymph hatching intervals. Avoid midday pesticide spraying due to volatilization risk and phytotoxicity; spray cold-pressed neem kernel extract (5ml/L) during cool evening hours (18:00 - 19:30).`;
+      }
+      if (rainProbability > 60) {
+        return `⚠️ RAIN DELAY FOR PEST CONTROL: Pest infestation detected (${pestName}), but rain probability is high (${rainProbability.toFixed(0)}%). Postpone foliar application until after rainfall to avoid chemical wash-off.`;
+      }
+      return `🐛 PEST INTERVENTION: ${pestName} detected with ${confidencePercent.toFixed(1)}% confidence. Current microclimate is suitable for immediate application of bio-insecticide and deployment of yellow sticky pheromone traps.`;
+    }
+
+    // Healthy
+    if (soilMoisture < 32) {
+      return `💧 PREVENTATIVE MOISTURE ALERT: Crop foliage is currently healthy, but root zone is entering moisture stress (${soilMoisture.toFixed(0)}%). Initiate irrigation within 4 hours to sustain cellular turgor and prevent premature wilting.`;
+    }
+    if (temperature > 38) {
+      return `☀️ HEAT VIGOR MONITORING: Foliage is healthy, but extreme ambient temperature (${temperature.toFixed(1)}°C) demands watchful root moisture buffering against thermal stress.`;
+    }
+    return `✅ HARMONIC EQUILIBRIUM: Edge AI confirms healthy photosynthetic tissues (${confidencePercent.toFixed(1)}% confidence), and all live IoT sensor parameters are within optimal agronomic field capacity. Maintain regular fertigation schedule.`;
+  }
   /**
    * Evaluates irrigation requirements based on Soil Moisture, Temperature, Humidity, and Rain Probability.
    */
@@ -207,12 +268,14 @@ export class DecisionEngine {
   }
 
   /**
-   * Computes holistic crop health overview for dashboard.
+   * Computes holistic crop health overview for dashboard, dynamically infusing
+   * Edge AI local inference scans if available.
    */
   public static evaluateCropHealth(
     reading: SensorReading, 
     scenario: DemoScenario,
-    activeAlerts: AlertItem[]
+    activeAlerts: AlertItem[],
+    latestScan?: CropScanResult | null
   ): CropHealthOverview {
     let healthScore = 94;
     let healthStatus: CropHealthOverview['healthStatus'] = 'Optimal';
@@ -268,6 +331,33 @@ export class DecisionEngine {
         pestRisk = 'Moderate';
         advisory = 'Severe soil saturation detected (>85%). Dig drainage outlets to avoid root rot and anaerobic soil hypoxia.';
         break;
+    }
+
+    // Blend in recent Edge AI on-device diagnostic scan if available
+    if (latestScan) {
+      if (latestScan.conditionCategory === 'disease') {
+        diseaseRisk = 'High';
+        healthScore = Math.min(healthScore, 48);
+        healthStatus = 'Critical';
+        advisory = `[Edge AI Detected: ${latestScan.diseaseDetected}] ${latestScan.combinedRecommendation || latestScan.recommendation}`;
+      } else if (latestScan.conditionCategory === 'pest') {
+        pestRisk = 'High';
+        healthScore = Math.min(healthScore, 54);
+        healthStatus = 'Critical';
+        advisory = `[Edge AI Detected: ${latestScan.pestDetected}] ${latestScan.combinedRecommendation || latestScan.recommendation}`;
+      } else if (latestScan.conditionCategory === 'nutrient_deficiency') {
+        healthScore = Math.min(healthScore, 62);
+        healthStatus = 'Moderate';
+        advisory = `[Edge AI Detected: ${latestScan.nutrientDeficiencyDetected || 'Nutrient Deficiency'}] ${latestScan.combinedRecommendation || latestScan.recommendation}`;
+      } else if (latestScan.conditionCategory === 'healthy') {
+        if (scenario === 'NORMAL') {
+          healthScore = Math.max(healthScore, 96);
+          healthStatus = 'Optimal';
+          diseaseRisk = 'Low';
+          pestRisk = 'Low';
+          advisory = `[Edge AI Verified Healthy] Intact photosynthetic foliage verified on-device. Sensor conditions are in prime balance.`;
+        }
+      }
     }
 
     return {

@@ -114,6 +114,7 @@ export class MockAIInferenceAdapter implements AIInferenceAdapter {
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           imageUri: sample.imageUri,
           cropName: sample.crop,
+          conditionCategory: sample.healthStatus === 'Healthy' ? 'healthy' : sample.expectedPest !== 'None detected' ? 'pest' : 'disease',
           healthStatus: sample.healthStatus,
           diseaseDetected: sample.expectedDisease,
           pestDetected: sample.expectedPest,
@@ -121,6 +122,8 @@ export class MockAIInferenceAdapter implements AIInferenceAdapter {
           recommendation: sample.recommendation,
           organicRemedy: sample.organicRemedy,
           chemicalRemedy: sample.chemicalRemedy,
+          inferenceLatencyMs: 54,
+          edgeModelType: 'MobileNetV3-AgroEdge (INT8 Local)',
           affectedAreaPercent: sample.healthStatus === 'Healthy' ? 0 : sample.healthStatus === 'Infected' ? 28 : 18,
           isMock: true,
         };
@@ -136,6 +139,7 @@ export class MockAIInferenceAdapter implements AIInferenceAdapter {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       imageUri: uri,
       cropName: 'Foliage Specimen (Solanaceae / Poaceae)',
+      conditionCategory: 'disease',
       healthStatus: 'Early Warning',
       diseaseDetected: 'Suspected Cercospora / Early Leaf Spot',
       pestDetected: 'No active nymph colonies observed',
@@ -143,6 +147,8 @@ export class MockAIInferenceAdapter implements AIInferenceAdapter {
       recommendation: 'Early localized spot chlorosis detected along leaf margin. Isolate sample area and monitor for 48 hours.',
       organicRemedy: 'Foliar application of fermented cow urine + neem leaf extract (10% solution) at 5-day intervals.',
       chemicalRemedy: 'Chlorothalonil 75% WP @ 2g/L if spotting spreads past 15% canopy area.',
+      inferenceLatencyMs: 58,
+      edgeModelType: 'MobileNetV3-AgroEdge (INT8 Local)',
       affectedAreaPercent: 12,
       isMock: true,
     };

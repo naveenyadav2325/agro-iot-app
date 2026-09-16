@@ -6,9 +6,11 @@ import {
   CropHealthOverview, 
   EnvironmentalRiskAnalysis, 
   AlertItem, 
-  CropScanResult 
+  CropScanResult,
+  EdgeAIStatusInfo 
 } from '../types';
 import { mockSensorAdapter } from '../services/MockSensorAdapter';
+import { mockEdgeAIAdapter } from '../services/MockEdgeAIAdapter';
 import { DecisionEngine } from '../services/DecisionEngine';
 import { AgroLogo } from './Logo';
 import { HomeScreen } from './HomeScreen';
@@ -35,7 +37,9 @@ import {
   Sparkles, 
   HelpCircle,
   X,
-  Layers
+  Layers,
+  Cpu,
+  WifiOff
 } from 'lucide-react';
 
 export const AndroidShell: React.FC = () => {
@@ -52,6 +56,8 @@ export const AndroidShell: React.FC = () => {
 
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [recentScans, setRecentScans] = useState<CropScanResult[]>([]);
+  const [latestScan, setLatestScan] = useState<CropScanResult | null>(null);
+  const [edgeAIStatus, setEdgeAIStatus] = useState<EdgeAIStatusInfo>(mockEdgeAIAdapter.getStatus());
   const [isFrameMode, setIsFrameMode] = useState<boolean>(true);
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
   const [isEnvRiskModalOpen, setIsEnvRiskModalOpen] = useState<boolean>(false);
@@ -85,9 +91,21 @@ export const AndroidShell: React.FC = () => {
     return () => unsubscribe();
   }, [scenario]);
 
+  // Subscribe to Edge AI Status changes
+  useEffect(() => {
+    const unsubscribe = mockEdgeAIAdapter.subscribeStatus((newStatus) => {
+      setEdgeAIStatus(newStatus);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleScenarioChange = (newScenario: DemoScenario) => {
     setScenario(newScenario);
     mockSensorAdapter.setScenario(newScenario);
+  };
+
+  const handleToggleEngine = (enabled: boolean) => {
+    mockEdgeAIAdapter.setEngineOn(enabled);
   };
 
   const handleAcknowledgeAlert = (id: string) => {
@@ -101,13 +119,14 @@ export const AndroidShell: React.FC = () => {
   };
 
   const handleScanCompleted = (scan: CropScanResult) => {
+    setLatestScan(scan);
     setRecentScans((prev) => [scan, ...prev]);
   };
 
   // Derive decision & environmental risk from current telemetry
   const irrigation: IrrigationDecision = DecisionEngine.evaluateIrrigation(reading);
   const envRisk: EnvironmentalRiskAnalysis = DecisionEngine.evaluateEnvironmentalRisk(reading);
-  const cropHealth: CropHealthOverview = DecisionEngine.evaluateCropHealth(reading, scenario, alerts);
+  const cropHealth: CropHealthOverview = DecisionEngine.evaluateCropHealth(reading, scenario, alerts, latestScan);
 
   const unreadAlerts = alerts.filter((a) => !a.acknowledged).length;
 
@@ -126,7 +145,7 @@ export const AndroidShell: React.FC = () => {
         <div className="flex items-center gap-2">
           <span className="font-extrabold text-stone-700 tracking-wide flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-600 animate-ping" />
-            SIH PS 26180
+            AGRO-IOT
           </span>
           <span className="text-stone-400">•</span>
           <span className="text-stone-500 font-medium">Smart Farming Assistant</span>
@@ -186,6 +205,20 @@ export const AndroidShell: React.FC = () => {
         <div className="bg-emerald-800 text-white px-4 py-3 shadow-md flex items-center justify-between select-none">
           <AgroLogo size={32} showText={true} className="text-white" />
           <div className="flex items-center gap-1.5">
+            {/* Quick Edge AI Status Pill */}
+            <button
+              onClick={() => setCurrentTab(1)}
+              className={`px-2 py-1 rounded-lg text-[11px] font-bold border flex items-center gap-1 transition-colors ${
+                edgeAIStatus.engineOn
+                  ? 'bg-emerald-700/80 hover:bg-emerald-700 border-emerald-600 text-emerald-100'
+                  : 'bg-stone-700/80 hover:bg-stone-700 border-stone-600 text-stone-300'
+              }`}
+              title="Edge AI Local Engine Status"
+            >
+              <Cpu className="w-3 h-3 text-emerald-300" />
+              <span>Edge AI: {edgeAIStatus.engineOn ? 'ON' : 'OFF'}</span>
+            </button>
+
             <button
               onClick={() => setIsEnvRiskModalOpen(true)}
               className="px-2 py-1 rounded-lg bg-emerald-700/80 hover:bg-emerald-700 text-[11px] font-bold border border-emerald-600 flex items-center gap-1"
@@ -207,6 +240,9 @@ export const AndroidShell: React.FC = () => {
               cropHealth={cropHealth}
               envRisk={envRisk}
               alerts={alerts}
+              edgeAIStatus={edgeAIStatus}
+              onToggleEngine={handleToggleEngine}
+              latestScan={latestScan}
               onAcknowledgeAlert={handleAcknowledgeAlert}
               onNavigateTab={(idx) => setCurrentTab(idx)}
               onOpenEnvRisk={() => setIsEnvRiskModalOpen(true)}
@@ -215,6 +251,9 @@ export const AndroidShell: React.FC = () => {
 
           {currentTab === 1 && (
             <CropScanScreen
+              reading={reading}
+              edgeAIStatus={edgeAIStatus}
+              onToggleEngine={handleToggleEngine}
               onScanCompleted={handleScanCompleted}
               recentScans={recentScans}
             />

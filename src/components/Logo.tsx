@@ -60,9 +60,6 @@ export const AgroLogo: React.FC<LogoProps> = ({ className = '', size = 36, showT
             <span className="font-extrabold text-base tracking-wider text-emerald-950 font-sans">
               AGRO<span className="text-emerald-600">-IOT</span>
             </span>
-            <span className="text-[10px] uppercase font-bold tracking-widest bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full">
-              SIH 26180
-            </span>
           </div>
           <span className="text-[11px] font-medium text-stone-500">
             Smart Farming Assistant

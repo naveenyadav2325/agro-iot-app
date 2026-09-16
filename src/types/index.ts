@@ -54,18 +54,50 @@ export interface CropHealthOverview {
   activeAlertCount: number;
 }
 
+export type CropConditionType = 'healthy' | 'disease' | 'pest' | 'nutrient_deficiency';
+
+export type EdgeAIEngineStatus = 
+  | 'Idle - Ready'
+  | 'Inferring (Local INT8)'
+  | 'Engine Offline'
+  | 'Completed'
+  | 'Error';
+
+export interface EdgeAIStatusInfo {
+  engineOn: boolean;
+  inferenceStatus: EdgeAIEngineStatus;
+  modelStatus: string; // e.g. "Loaded (TFLite INT8 • 12.4 MB)"
+  lastInferenceTime: string | null;
+  lastInferenceLatencyMs: number | null;
+  confidence: number | null;
+  offlineMode: boolean; // Always true for Edge AI
+  quantization: string; // "INT8 Quantized"
+  modelArchitecture: string; // "MobileNetV3-AgroEdge"
+}
+
 export interface CropScanResult {
   id: string;
   timestamp: string;
   imageUri: string;
   cropName: string;
+  conditionCategory: CropConditionType;
   healthStatus: 'Healthy' | 'Early Warning' | 'Infected' | 'Damaged';
   diseaseDetected: string;
   pestDetected: string;
+  nutrientDeficiencyDetected?: string;
   confidencePercent: number;
   recommendation: string;
   organicRemedy: string;
   chemicalRemedy: string;
+  combinedRecommendation?: string; // Sensor + Edge AI fusion recommendation
+  sensorContextSnapshot?: {
+    soilMoisture: number;
+    temperature: number;
+    humidity: number;
+    rainProbability: number;
+  };
+  inferenceLatencyMs: number;
+  edgeModelType: string;
   affectedAreaPercent: number;
   isMock: boolean;
 }

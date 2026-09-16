@@ -5,8 +5,11 @@ import {
   IrrigationDecision, 
   CropHealthOverview, 
   AlertItem, 
-  EnvironmentalRiskAnalysis 
+  EnvironmentalRiskAnalysis,
+  EdgeAIStatusInfo,
+  CropScanResult 
 } from '../types';
+import { EdgeAIStatusCard } from './EdgeAIStatusCard';
 import { 
   Droplet, 
   Thermometer, 
@@ -20,7 +23,9 @@ import {
   ChevronRight, 
   Bug, 
   Sparkles,
-  MapPin
+  MapPin,
+  Cpu,
+  WifiOff
 } from 'lucide-react';
 
 interface HomeScreenProps {
@@ -31,6 +36,9 @@ interface HomeScreenProps {
   cropHealth: CropHealthOverview;
   envRisk: EnvironmentalRiskAnalysis;
   alerts: AlertItem[];
+  edgeAIStatus: EdgeAIStatusInfo;
+  onToggleEngine: (enabled: boolean) => void;
+  latestScan?: CropScanResult | null;
   onAcknowledgeAlert: (id: string) => void;
   onNavigateTab: (tabIndex: number) => void;
   onOpenEnvRisk: () => void;
@@ -44,6 +52,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   cropHealth,
   envRisk,
   alerts,
+  edgeAIStatus,
+  onToggleEngine,
+  latestScan,
   onAcknowledgeAlert,
   onNavigateTab,
   onOpenEnvRisk,
@@ -193,6 +204,52 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Edge AI Status Section */}
+      <EdgeAIStatusCard
+        status={edgeAIStatus}
+        onToggleEngine={onToggleEngine}
+        onOpenScanner={() => onNavigateTab(1)}
+      />
+
+      {/* Latest Edge AI Scan Diagnosis Card (If a scan has been run) */}
+      {latestScan && (
+        <div 
+          onClick={() => onNavigateTab(1)}
+          className="bg-emerald-900 text-white rounded-2xl p-4 shadow-sm border border-emerald-800 cursor-pointer hover:bg-emerald-850 transition-colors"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-800 text-emerald-200">
+                Latest Edge AI Scan
+              </span>
+              <span className="text-[11px] text-emerald-300 font-mono">
+                {latestScan.inferenceLatencyMs}ms • {latestScan.confidencePercent.toFixed(1)}% Conf
+              </span>
+            </div>
+            <span className="text-[10px] text-emerald-300 flex items-center gap-0.5">
+              View Scan <ChevronRight className="w-3 h-3" />
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="text-sm font-bold text-white">
+                {latestScan.conditionCategory === 'disease'
+                  ? latestScan.diseaseDetected
+                  : latestScan.conditionCategory === 'pest'
+                  ? latestScan.pestDetected
+                  : latestScan.conditionCategory === 'nutrient_deficiency'
+                  ? latestScan.nutrientDeficiencyDetected
+                  : 'Healthy Foliage Verified'}
+              </h4>
+              <p className="text-[11px] text-emerald-200 line-clamp-2 mt-1">
+                {latestScan.combinedRecommendation || latestScan.recommendation}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 4 Sensor Telemetry Grid */}
       <div>
