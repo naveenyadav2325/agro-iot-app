@@ -1,0 +1,6 @@
+{
+  "name": "AGRO-IOT",
+  "description": "Smart Farming Assistant for SIH Problem Statement 26180 with IoT telemetry, irrigation decision engine, and crop scan.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
